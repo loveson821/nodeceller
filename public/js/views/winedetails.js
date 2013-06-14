@@ -13,7 +13,12 @@ window.WineView = Backbone.View.extend({
         "change"        : "change",
         "click .save"   : "beforeSave",
         "click .delete" : "deleteWine",
-        "drop #picture" : "dropHandler"
+        "drop #picture" : "dropHandler",
+        "dragover #picture"      : "dragoverHandler"
+    },
+
+    dragoverHandler: function (event) {
+        event.preventDefault();
     },
 
     change: function (event) {
@@ -46,9 +51,30 @@ window.WineView = Backbone.View.extend({
         return false;
     },
 
+
     saveWine: function () {
         var self = this;
         console.log('before save');
+        if(this.pictureFile){
+            this.model.set('picture',this.pictureFile.name);
+            fd = new FormData();
+            fd.append( 'file', this.pictureFile );
+
+            $.ajax({
+              url: '/file-upload',
+              data: fd,
+              processData: false,
+              contentType: false,
+              type: 'POST',
+              success: function(data){
+                console.log('data: ' + data);
+                alert(data);
+              }
+            });
+
+
+        }
+
         this.model.save(null, {
             success: function (model) {
                 self.render();
@@ -72,11 +98,13 @@ window.WineView = Backbone.View.extend({
     },
 
     dropHandler: function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+        console.log("drop handler affected");
+        event.originalEvent.stopPropagation();
+        event.originalEvent.preventDefault();
         var e = event.originalEvent;
         e.dataTransfer.dropEffect = 'copy';
         this.pictureFile = e.dataTransfer.files[0];
+
 
         // Read the image file from the local file system and display it in the img tag
         var reader = new FileReader();

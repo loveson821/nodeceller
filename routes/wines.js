@@ -1,4 +1,5 @@
 var mongo = require('mongodb');
+var fs = require('fs');
 
 var Server = mongo.Server,
     Db = mongo.Db,
@@ -52,7 +53,7 @@ exports.addWine = function(req, res) {
     });
 }
 
-exports.updateWine = function(req, res) {
+exports.updateWine = function(req, res, next) {
     var id = req.params.id;
     var wine = req.body;
     delete wine._id;
